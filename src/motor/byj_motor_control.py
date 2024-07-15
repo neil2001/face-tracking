@@ -159,3 +159,7 @@ class BYJMotor(object):
             # switch off pins at end
             for pin in gpiopins:
                 GPIO.output(pin, False)
+
+
+
+        

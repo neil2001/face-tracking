@@ -6,7 +6,7 @@ class CalibrationState(State):
         
     def execute(self, context):
         print("calibrating device")
-        context.change_state(TrackerState.IDLE)
+        context.change_state(TrackerState.TRACK)
         
     def exit_state(self, context):
         print("finished calibration")
