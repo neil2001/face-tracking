@@ -31,6 +31,7 @@ mp_drawing = mp.solutions.drawing_utils
         # ~ continue
         
 while True:
+# ~ for i in range(10):
     frame = picam.capture_array()
         
     # Convert the BGR image to RGB.
@@ -52,6 +53,8 @@ while True:
             mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2),
             mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
         )
+        
+        print(results.pose_landmarks.landmark[0].x, results.pose_landmarks.landmark[0].y)
 
     # Display the image.
     cv2.imshow('MediaPipe Pose', image)
