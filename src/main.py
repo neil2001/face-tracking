@@ -7,7 +7,7 @@
 
 import sys
 import signal
-from FaceTracker.src.state.facetracker import FaceTracker
+from state.facetracker import FaceTracker
 
 face_tracker = FaceTracker()
 
@@ -19,8 +19,8 @@ signal.signal(signal.SIGINT, cleanup_handler)
 
 def main(args):
 
-    # while True:
-    for i in range(10):
+    while True:
+    # for i in range(10):
         face_tracker.execute()
 
 if __name__ == '__main__':
