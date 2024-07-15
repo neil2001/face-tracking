@@ -1,4 +1,4 @@
-from FaceTracker.src.motor.byj_motor_control import BYJMotor
+from src.motor.byj_motor_control import BYJMotor
 
 FULL_ROTATION_STEPS = 512*3
 FULL_ROTATION_DEGREES = 360

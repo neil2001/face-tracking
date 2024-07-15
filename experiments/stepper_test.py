@@ -1,10 +1,10 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from FaceTracker.src.motor.byj_motor_control import BYJMotor
-from FaceTracker.src.motor.motorcontroller import MotorController
+from src.motor.byj_motor_control import BYJMotor
+from src.motor.motorcontroller import MotorController
 
 pins = [17,18,27,22]
 
