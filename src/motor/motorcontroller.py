@@ -1,3 +1,6 @@
+import signal
+import sys
+
 from src.motor.byj_motor_control import BYJMotor
 
 FULL_ROTATION_STEPS = 512*3
@@ -12,19 +15,33 @@ class MotorController(object):
         self.min_angle = min_angle
         self.max_angle = max_angle
 
-    def rotate(self, angle):
+        signal.signal(signal.SIGINT, self.reset_signal_handler)
+
+    def rotate(self, angle, verbose=False):
         if self.current_angle == self.max_angle and angle > 0:
             return
         if self.current_angle == self.min_angle and angle < 0: 
             return
 
         next_angle = max(self.min_angle, min(self.max_angle, self.current_angle + angle))
-        
-        print("angle to move", angle)
-        print("current angle", self.current_angle)
-        print("next angle", next_angle)
+
+        if verbose: 
+            print("angle to move", angle)
+            print("current angle", self.current_angle)
+            print("next angle", next_angle)
         steps = int(self.gear_ratio * ((next_angle - self.current_angle) / FULL_ROTATION_DEGREES) * 512)
-        print("steps to move", steps)
+        if verbose: 
+            print("steps to move", steps)
         self.motor.motor_run(self.pins, steps=abs(steps), ccwise=steps<0)
         self.current_angle = next_angle
-        print("new_angle", self.current_angle)
+        if verbose:
+            print("new_angle", self.current_angle)
+
+    def reset_signal_handler(self, signal, frame):
+        print('SIGINT received, resetting motor...')
+        self.reset()
+        sys.exit(0)
+
+    def reset(self):
+        self.rotate(-self.current_angle)
+        self.current_angle = 0

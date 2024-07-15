@@ -1,4 +1,4 @@
-from state import State
+from state.state import State
 
 class IdleState(State):
     def enter_state(self, context):

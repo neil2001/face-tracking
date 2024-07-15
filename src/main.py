@@ -6,11 +6,12 @@
 #  Copyright 2024  <neilxu@raspberrypi2>
 
 import sys
-from tracker_context import FaceTracker
+from FaceTracker.src.state.facetracker import FaceTracker
 
 def main(args):
 
     face_tracker = FaceTracker()
+    
 
     # while True:
     for i in range(10):
