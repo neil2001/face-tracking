@@ -1,4 +1,10 @@
 from abc import ABC, abstractmethod
+from enum import Enum, auto
+
+class TrackerState(Enum):
+    CALIBRATION = auto()
+    TRACK = auto()
+    IDLE = auto()
 
 class State(ABC):
     @abstractmethod

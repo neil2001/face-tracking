@@ -1,12 +1,12 @@
-from state import State
+from state import State, TrackerState
 
-class Calibration(State):
+class CalibrationState(State):
     def enter_state(self, context):
         print("beginning calibration")
         
     def execute(self, context):
         print("calibrating device")
-        context.set_state(IdleState())
+        context.change_state(TrackerState.IDLE)
         
     def exit_state(self, context):
         print("finished calibration")
