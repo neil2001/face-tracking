@@ -7,25 +7,22 @@ RED = (0, 0, 255)
 GREEN = (0, 255, 0)
 BLUE = (255, 0, 0)
 
-# detector = cv2.HOGDescriptor()
-# detector.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
-detector = cv2.CascadeClassifier(
+face_detector = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
 
-def detect_and_bound(frame):
+def detect_faces(frame):
     gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    boxes = detector.detectMultiScale(
+    faces = face_detector.detectMultiScale(
         gray_img, scaleFactor=SCALE, minNeighbors=SENSITIVITY, minSize=(75, 75)
     )
-    # boxes, _ = detector.detectMultiScale(frame, winStride=(8,8))
 
-    for x,y,w,h in boxes:
+    for x,y,w,h in faces:
         x_o, y_o = (x + w//2, y + h//2)
         cv2.circle(frame, (x_o, y_o), 5, RED, -1)
         cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN, 4)
-    return
+    return faces
 
 
 video_capture = cv2.VideoCapture(0)
@@ -36,7 +33,7 @@ while True:
     if result is False:
         break  # terminate the loop if the frame is not read successfully
 
-    detect_and_bound(video_frame)  
+    faces = detect_faces(video_frame)  
 
     cv2.imshow("Face Detection Test", video_frame)  
 
