@@ -56,4 +56,8 @@ class FaceTracker:
 
     def execute(self):
         self.state_class.execute(self)
+
+    def cleanup(self):
+        cv2.destroyAllWindows()
+        
         
