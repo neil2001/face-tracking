@@ -16,6 +16,11 @@ TILT_GEAR_RATIO = 3
 TILT_MAX_ANGLE = 90
 TILT_MIN_ANGLE = -90
 
+PAN_MOTOR_PINS = [6, 13, 19, 26]
+PAN_GEAR_RATIO = 3
+PAN_MAX_ANGLE = 90
+PAN_MIN_ANGLE = -90
+
 class FaceTracker:
     def __init__(self):
         self.state_map = {
@@ -34,12 +39,20 @@ class FaceTracker:
         self.camera.configure(config)
         self.camera.start() # TODO: comment out to disable gui (maybe make this a cli arg)
 
-        # Setting up motor
+        # Setting up tilt motor
         self.tilt_motor = MotorController(
             pins=TILT_MOTOR_PINS, 
             gear_ratio=TILT_GEAR_RATIO, 
             min_angle=TILT_MIN_ANGLE, 
             max_angle=TILT_MAX_ANGLE
+        )
+
+        # Setting up tilt motor
+        self.pan_motor = MotorController(
+            pins=PAN_MOTOR_PINS, 
+            gear_ratio=PAN_GEAR_RATIO, 
+            min_angle=PAN_MIN_ANGLE, 
+            max_angle=PAN_MAX_ANGLE
         )
 
         # Setting up mediapipe
@@ -60,6 +73,5 @@ class FaceTracker:
     # TODO: GOTTA MAKE SURE THIS FUNCTION GETS FILLED OUT
     def cleanup(self):
         self.tilt_motor.reset()
+        self.pan_motor.reset()
         cv2.destroyAllWindows()
-
-        
