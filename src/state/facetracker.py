@@ -57,6 +57,7 @@ class FaceTracker:
     def execute(self):
         self.state_class.execute(self)
 
+    # TODO: GOTTA MAKE SURE THIS FUNCTION GETS FILLED OUT
     def cleanup(self):
         self.tilt_motor.reset()
         cv2.destroyAllWindows()
