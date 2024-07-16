@@ -12,6 +12,7 @@ from state.facetracker import FaceTracker
 face_tracker = FaceTracker()
 
 def cleanup_handler(sig, frame):
+    print("cleaning up")
     face_tracker.cleanup()
     sys.exit(0)
 
