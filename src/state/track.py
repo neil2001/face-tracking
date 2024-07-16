@@ -13,8 +13,10 @@ TILT_THRESHOLD = 0.15
 FIXED_PAN_AMOUNT = 10
 FIXED_TILT_AMOUNT = 10
 
-TOP_BOTTOM_ANGLE = 90
+TOP_BOTTOM_ANGLE = 60
 LEFT_RIGHT_ANGLE = 90
+
+P = 2
 
 # ====================================
 
@@ -44,12 +46,12 @@ class TrackState(State):
         x_diff = centroid.x - 0.5
         if abs(x_diff) > PAN_THRESHOLD:
             # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT
-            x_angle = np.sign(x_diff) * LEFT_RIGHT_ANGLE / 2
+            x_angle = x_diff * LEFT_RIGHT_ANGLE * P
 
         y_diff = centroid.y - 0.5
         if abs(y_diff) > TILT_THRESHOLD:
             # y_angle = np.sign(y_diff) * FIXED_TILT_AMOUNT
-            y_angle = np.sign(y_diff) * TOP_BOTTOM_ANGLE / 2
+            y_angle = y_diff * TOP_BOTTOM_ANGLE
             
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.submit(context.pan_motor.rotate, x_angle)
