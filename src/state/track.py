@@ -1,9 +1,38 @@
 import cv2
 from state.state import State
+from dataclasses import dataclass
+import numpy as np
+
+# ============ Constants =============
+TILT_THRESHOLD = 0.15
+# ====================================
+
+# TODO: Move to util?
+@dataclass
+class Point:
+    x: float
+    y: float
 
 class TrackState(State):
     def enter_state(self, context):
         print("entering tracking state")
+
+    def compute_centroid(self, landmarks):
+        x_vals = [l.x for l in landmarks]
+        y_vals = [l.y for l in landmarks]
+
+        return Point(np.mean(x_vals), np.mean(y_vals))
+
+    def move_camera(self, landmarks, context):
+        centroid = self.compute_centroid(landmarks)
+
+        y_diff = centroid.y - 0.5
+        sign = -1 if y_diff < 0 else 1
+
+        if abs(y_diff) < TILT_THRESHOLD:
+            return
+        
+        context.tilt_motor.rotate(sign * 10)
         
     def execute(self, context):
         print("tracking")
@@ -29,7 +58,9 @@ class TrackState(State):
                 context.mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
             )
 
-            print("Pose landmarks", results.pose_landmarks)
+            nose_landmark = results.pose_landmarks.landmark[0]
+
+            self.move_camera([nose_landmark], context)
 
         # Display the image.
         cv2.imshow('MediaPipe Pose', image)
