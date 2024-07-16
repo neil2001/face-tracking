@@ -73,7 +73,6 @@ class FaceTracker:
 
     # TODO: GOTTA MAKE SURE THIS FUNCTION GETS FILLED OUT
     def cleanup(self):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.submit(self.pan_motor.reset)
-            executor.submit(self.tilt_motor.reset)
+        self.pan_motor.reset()
+        self.tilt_motor.reset()
         cv2.destroyAllWindows()

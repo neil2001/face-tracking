@@ -17,7 +17,7 @@ FIXED_TILT_AMOUNT = 10
 TOP_BOTTOM_ANGLE = 60
 LEFT_RIGHT_ANGLE = 90
 
-VELOCITY_BUFFER_SIZE = 3
+VELOCITY_BUFFER_SIZE = 2
 
 # ====================================
 
@@ -50,20 +50,22 @@ class TrackState(State):
         self.times[self.index] = time.time()
 
         roll_amt = VELOCITY_BUFFER_SIZE - self.index - 1
-        np.roll(self.times, roll_amt)
-        np.roll(self.locations, roll_amt, axis=0)
+        times_rolled = np.roll(self.times, roll_amt)
+        locations_rolled = np.roll(self.locations, roll_amt, axis=0)
 
-        print("times", self.times)
+        # ~ print("times", times_rolled % 1000)
 
-        displacements = np.diff(self.locations, axis=0)
-        time_diffs = np.diff(self.times)
+        displacements = np.diff(locations_rolled, axis=0)
+        time_diffs = np.diff(times_rolled)
         velocities = displacements / time_diffs[:, None]
 
-        print("velocities", velocities)
+        # ~ print("velocities", velocities)
 
         average_velocity = np.mean(velocities, axis=0)
         self.velocity.x = average_velocity[0]
         self.velocity.y = average_velocity[1]
+        
+        print("average velocity", average_velocity)
 
         self.index = (self.index + 1) % VELOCITY_BUFFER_SIZE
 
@@ -74,12 +76,12 @@ class TrackState(State):
         x_diff = centroid.x - 0.5
         if abs(x_diff) > PAN_THRESHOLD:
             # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT
-            x_angle = x_diff * LEFT_RIGHT_ANGLE
+            x_angle = x_diff * LEFT_RIGHT_ANGLE * abs(self.velocity.x) * 10
 
         y_diff = centroid.y - 0.5
         if abs(y_diff) > TILT_THRESHOLD:
             # y_angle = np.sign(y_diff) * FIXED_TILT_AMOUNT
-            y_angle = y_diff * TOP_BOTTOM_ANGLE
+            y_angle = y_diff * TOP_BOTTOM_ANGLE * abs(self.velocity.y) * 10
             
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.submit(context.pan_motor.rotate, x_angle)
