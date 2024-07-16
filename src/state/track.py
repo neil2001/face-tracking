@@ -34,6 +34,9 @@ class TrackState(State):
         self.times = np.zeros(VELOCITY_BUFFER_SIZE)
         self.index = 0
 
+        self.pan_pid = PID(1.0, 0.1, 0.05, setpoint=0)
+        self.tilt_pid = PID(1.0, 0.1, 0.05, setpoint=0)
+
     def enter_state(self, context):
         print("entering tracking state")
 
@@ -75,8 +78,12 @@ class TrackState(State):
 
         x_diff = centroid.x - 0.5
         if abs(x_diff) > PAN_THRESHOLD:
-            # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT
-            x_angle = x_diff * LEFT_RIGHT_ANGLE * abs(self.velocity.x) * 10
+            # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT # naive method
+            # x_angle = x_diff * LEFT_RIGHT_ANGLE # centering method
+            # x_angle = x_diff * LEFT_RIGHT_ANGLE * abs(self.velocity.x) * 10 # velocity method
+            
+            pan_output = self.pan_pid(x_diff)
+            x_angle = pan_output * LEFT_RIGHT_ANGLE
 
         y_diff = centroid.y - 0.5
         if abs(y_diff) > TILT_THRESHOLD:
