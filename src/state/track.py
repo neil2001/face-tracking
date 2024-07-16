@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 import concurrent.futures
 from simple_pid import PID
+import time
 
 # ============ Constants =============
 
@@ -16,7 +17,7 @@ FIXED_TILT_AMOUNT = 10
 TOP_BOTTOM_ANGLE = 60
 LEFT_RIGHT_ANGLE = 90
 
-P = 2
+VELOCITY_BUFFER_SIZE = 3
 
 # ====================================
 
@@ -27,6 +28,12 @@ class Point:
     y: float
 
 class TrackState(State):
+    def __init__(self):
+        self.velocity = Point(0, 0)
+        self.locations = np.zeros((VELOCITY_BUFFER_SIZE,2))
+        self.times = np.zeros(VELOCITY_BUFFER_SIZE)
+        self.index = 0
+
     def enter_state(self, context):
         print("entering tracking state")
 
@@ -38,15 +45,36 @@ class TrackState(State):
     
     # def compute_angle(self, loc, context):
 
-    def move_camera(self, landmarks, context):
-        centroid = self.compute_centroid(landmarks)
+    def update_velocity(self, centroid):
+        self.locations[self.index] = [centroid.x, centroid.y]
+        self.times[self.index] = time.time()
 
+        roll_amt = VELOCITY_BUFFER_SIZE - self.index - 1
+        np.roll(self.times, roll_amt)
+        np.roll(self.locations, roll_amt, axis=0)
+
+        print("times", self.times)
+
+        displacements = np.diff(self.locations, axis=0)
+        time_diffs = np.diff(self.times)
+        velocities = displacements / time_diffs[:, None]
+
+        print("velocities", velocities)
+
+        average_velocity = np.mean(velocities, axis=0)
+        self.velocity.x = average_velocity[0]
+        self.velocity.y = average_velocity[1]
+
+        self.index = (self.index + 1) % VELOCITY_BUFFER_SIZE
+
+
+    def move_camera(self, centroid, context):
         x_angle, y_angle = 0, 0
 
         x_diff = centroid.x - 0.5
         if abs(x_diff) > PAN_THRESHOLD:
             # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT
-            x_angle = x_diff * LEFT_RIGHT_ANGLE * P
+            x_angle = x_diff * LEFT_RIGHT_ANGLE
 
         y_diff = centroid.y - 0.5
         if abs(y_diff) > TILT_THRESHOLD:
@@ -58,7 +86,6 @@ class TrackState(State):
             executor.submit(context.tilt_motor.rotate, y_angle)
         
     def execute(self, context):
-        print("tracking")
         frame = context.camera.capture_array()
         
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -79,7 +106,10 @@ class TrackState(State):
 
             nose_landmark = results.pose_landmarks.landmark[0]
 
-            self.move_camera([nose_landmark], context)
+            centroid = self.compute_centroid([nose_landmark])
+
+            self.move_camera(centroid, context)
+            self.update_velocity(centroid)
 
         # Display the image.
         cv2.imshow('MediaPipe Pose', image)
