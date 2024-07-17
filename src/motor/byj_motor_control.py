@@ -19,6 +19,7 @@ class BYJMotor(object):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         self.stop_motor = False
+        self.steps_taken = 0
 
     def motor_stop(self):
         """ Stop the motor """
@@ -49,10 +50,13 @@ class BYJMotor(object):
          GPIO pins initialized but before motor is moved.
 
         """
+        
         if steps < 0:
             print("Error BYJMotor 101: Step number must be greater than 0")
             quit()
-                
+        
+        self.steps_taken = 0
+        
         try:
             self.stop_motor = False
             for pin in gpiopins:
@@ -131,6 +135,7 @@ class BYJMotor(object):
                     print_status(pin_list)
                     time.sleep(wait)
                 steps_remaining -= 1
+                self.steps_taken += -1 if ccwise else 1
 
         except KeyboardInterrupt:
             print("User Keyboard Interrupt : RpiMotorLib: ")
@@ -159,7 +164,6 @@ class BYJMotor(object):
             # switch off pins at end
             for pin in gpiopins:
                 GPIO.output(pin, False)
-
 
 
         

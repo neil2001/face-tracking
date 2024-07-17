@@ -21,10 +21,13 @@ motor2.rotate(45)
 motor2.rotate(-90)
 motor2.rotate(45)
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    executor.submit(motor.rotate, 90)
-    executor.submit(motor2.rotate, 90)
+motor.reset()
+motor2.reset()
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    executor.submit(motor.reset)
-    executor.submit(motor2.reset)
+# ~ with concurrent.futures.ThreadPoolExecutor() as executor:
+    # ~ executor.submit(motor.rotate, 90)
+    # ~ executor.submit(motor2.rotate, 90)
+
+# ~ with concurrent.futures.ThreadPoolExecutor() as executor:
+    # ~ executor.submit(motor.reset)
+    # ~ executor.submit(motor2.reset)
