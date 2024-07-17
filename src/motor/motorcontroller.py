@@ -13,6 +13,8 @@ class MotorController(object):
         self.max_angle = max_angle
 
     def rotate(self, angle, verbose=False):
+        self.motor.motor_stop() # DOES THIS WORK WITH MULTITHREADING?
+
         if self.current_angle == self.max_angle and angle > 0:
             return
         if self.current_angle == self.min_angle and angle < 0: 

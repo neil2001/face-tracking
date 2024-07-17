@@ -5,6 +5,7 @@ import numpy as np
 import concurrent.futures
 from simple_pid import PID
 import time
+import threading
 
 # ============ Constants =============
 
@@ -90,9 +91,14 @@ class TrackState(State):
             # ~ y_angle = y_diff * TOP_BOTTOM_ANGLE * abs(self.velocity.y) * 10
             # ~ y_angle = -self.tilt_pid(y_diff) * TOP_BOTTOM_ANGLE
             
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.submit(context.pan_motor.rotate, x_angle)
-            executor.submit(context.tilt_motor.rotate, y_angle)
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+        #     executor.submit(context.pan_motor.rotate, x_angle)
+        #     executor.submit(context.tilt_motor.rotate, y_angle)
+        pan_motor_thread = threading.Thread(target=context.pan_motor.rotate, args=(x_angle,))
+        pan_motor_thread.start()
+
+        tilt_motor_thread = threading.Thread(target=context.tilt_motor.rotate, args=(y_angle,))
+        tilt_motor_thread.start()
         
     def execute(self, context):
         frame = context.camera.capture_array()
