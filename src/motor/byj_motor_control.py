@@ -135,7 +135,7 @@ class BYJMotor(object):
                     print_status(pin_list)
                     time.sleep(wait)
                 steps_remaining -= 1
-                self.steps_taken += 1
+                self.steps_taken += -1 if ccwise else 1
 
         except KeyboardInterrupt:
             print("User Keyboard Interrupt : RpiMotorLib: ")

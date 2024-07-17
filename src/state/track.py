@@ -9,13 +9,13 @@ import threading
 
 # ============ Constants =============
 
-PAN_THRESHOLD = 0.1
-TILT_THRESHOLD = 0.1
+PAN_THRESHOLD = 0.15
+TILT_THRESHOLD = 0.15
 
 FIXED_PAN_AMOUNT = 10
 FIXED_TILT_AMOUNT = 10
 
-TOP_BOTTOM_ANGLE = 60
+TOP_BOTTOM_ANGLE = 60 # 40 # works better for pid
 LEFT_RIGHT_ANGLE = 90
 
 VELOCITY_BUFFER_SIZE = 2
@@ -36,7 +36,7 @@ class TrackState(State):
         self.index = 0
 
         self.pan_pid = PID(1.0, 0.1, 0.05, setpoint=0)
-        self.tilt_pid = PID(1.0, 0.1, 0.05, setpoint=0)
+        self.tilt_pid = PID(1.0, 0, 0, setpoint=0)
 
     def enter_state(self, context):
         print("entering tracking state")
@@ -79,14 +79,14 @@ class TrackState(State):
 
         x_diff = centroid.x - 0.5
         if abs(x_diff) > PAN_THRESHOLD:
-            # x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT # naive method
+            # ~ x_angle = np.sign(x_diff) * FIXED_PAN_AMOUNT # naive method
             x_angle = x_diff * LEFT_RIGHT_ANGLE # centering method
             # ~ x_angle = x_diff * LEFT_RIGHT_ANGLE * abs(self.velocity.x) * 7 # velocity method
             # ~ x_angle = -self.pan_pid(x_diff) * LEFT_RIGHT_ANGLE
 
         y_diff = centroid.y - 0.5
         if abs(y_diff) > TILT_THRESHOLD:
-            # y_angle = np.sign(y_diff) * FIXED_TILT_AMOUNT
+            # ~ y_angle = np.sign(y_diff) * FIXED_TILT_AMOUNT
             y_angle = y_diff * TOP_BOTTOM_ANGLE
             # ~ y_angle = y_diff * TOP_BOTTOM_ANGLE * abs(self.velocity.y) * 10
             # ~ y_angle = -self.tilt_pid(y_diff) * TOP_BOTTOM_ANGLE
@@ -94,11 +94,14 @@ class TrackState(State):
         # with concurrent.futures.ThreadPoolExecutor() as executor:
         #     executor.submit(context.pan_motor.rotate, x_angle)
         #     executor.submit(context.tilt_motor.rotate, y_angle)
-        pan_motor_thread = threading.Thread(target=context.pan_motor.rotate, args=(x_angle,))
-        pan_motor_thread.start()
+        # ~ pan_motor_thread = threading.Thread(target=context.pan_motor.rotate, args=(x_angle,))
+        # ~ pan_motor_thread.start()
 
-        tilt_motor_thread = threading.Thread(target=context.tilt_motor.rotate, args=(y_angle,))
-        tilt_motor_thread.start()
+        # ~ tilt_motor_thread = threading.Thread(target=context.tilt_motor.rotate, args=(y_angle,))
+        # ~ tilt_motor_thread.start()
+        
+        context.pan_motor.rotate(x_angle)
+        context.tilt_motor.rotate(y_angle)
         
     def execute(self, context):
         frame = context.camera.capture_array()
